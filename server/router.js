@@ -19,6 +19,7 @@ const router = (app) => {
   app.get('/page4', controllers.page4);
   app.get('/getName', controllers.getName);
   app.get('/findByName', controllers.searchName);
+  app.get('/timeTravel', controllers.timeMachine);
 
     // whenever someone goes to the site without a path (AKA the home page), call controllers.index
     // For example www.webpage.com
@@ -30,9 +31,12 @@ const router = (app) => {
     // When someone POSTS to /setName, call controllers.setName
     // For example, a form submission to www.webpage.com/setName
   app.post('/setName', controllers.setName);
+  
+  app.post('/setDogName', controllers.setDogName);
 
     // When someone POSTS to /updateLast, call controllers.updateLast
   app.post('/updateLast', controllers.updateLast);
+  app.post('/timeMachine', controllers.timeMachine);
 };
 
 // export the router function

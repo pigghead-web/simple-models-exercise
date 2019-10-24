@@ -4,7 +4,7 @@ const models = require('../models');
 // get the Cat model
 const Cat = models.Cat.CatModel;
 
-// get the Dog model >> error
+// get the Dog model >> error >> resolved, forgot to export in index.js from index.js - models
 const Dog = models.Dog.DogModel;
 
 // default fake data so that we have something to work with until we make a real Cat
@@ -90,9 +90,9 @@ const readDog = (req, res) => {
       if ( err ) {
         return res.json({ err });  // error
       }
-      
-      Dog.findByName(name1, callback);
+      return res.json(doc)  // successs
     };
+  Dog.findByName(name1, callback);
 }
 
 // function to handle requests to the page1 page
@@ -140,7 +140,16 @@ const hostPage3 = (req, res) => {
 };
 
 const hostPage4 = ( req, res ) => {
-  res.render('page4');
+  // res.render takes the name of a page to render
+  // * file required in views folder
+  const callback = (err, docs) => {
+    if (err) {
+      return res.json({err});
+    }
+   return res.render('page4', { dogs: docs });
+  };
+  
+  readAllDogs(req, res, callback);
 };
 
 // function to handle get request to send the name
@@ -197,6 +206,35 @@ const setName = (req, res) => {
   return res;
 };
 
+const setDogName = ( req, res ) => {
+  // check for required fields
+  if (!req.body.name || !req.body.breed || !req.body.age) {
+    // send a 400 (error)
+    return res.status(400).json({error: 'firstname, breed, and age are all required inputs'});
+  };
+  
+  console.dir(req.body);
+  
+  const dogData = {
+    name: req.body.name,
+    breed: req.body.breed,
+    age: req.body.age
+  };
+  
+  const newDog = new Dog(dogData);
+  
+  const savePromise = newDog.save();
+  
+  savePromise.then(() => {
+    lastDogAdded = newDog;
+    res.json({ name:lastDogAdded.name, breed: lastDogAdded.breed, age: lastDogAdded.age });
+  });
+  
+  savePromise.catch((err) => res.json({ err }));
+  
+  return res;
+};
+
 
 // function to handle requests search for a name and return the object
 // controller functions in Express receive the full HTTP request
@@ -237,6 +275,24 @@ const searchName = (req, res) => {
   });
 };
 
+const searchDogName = ( req, res ) => {
+  if(!req.query.name) {
+    return res.json({ error: "Name is required to perform time travel" });
+  }
+  
+  return Dog.findByName(req.query.name, (err, doc) => {
+    if (err) {
+      return res.json({ err });  
+    }
+    
+    if (!doc) {
+      return res.json({ error: 'No dogs found'});
+    }
+    
+    return res.json({ name: doc.name, });
+  });
+}
+
 // function to handle a request to update the last added object
 // this PURELY exists to show you how to update a model object
 // Normally for an update, you'd get data from the client,
@@ -263,6 +319,34 @@ const updateLast = (req, res) => {
   savePromise.catch((err) => res.json({ err }));
 };
 
+// This will be a combination of updateLast && findByName from the cats
+const timeMachine = ( req, res ) => {
+  if (!req.query.name) {
+    return res.json({ error: "Name is required to perform time travel"});
+  }
+    
+  return Dog.findByName(req.query.name, (err, doc) => {
+    if (err) {
+      return res.json({ err });
+    }
+      
+    if(!doc) {
+      return res.json({ error: "No dog by that name found"});
+    }
+      
+    return res.json({ name: doc.name});
+  });
+}
+  
+  
+  /*lastDogAdded.age++;
+  const savePromise = lastDogAdded.save();
+  
+  savePromise.then(() => res.json({ name: lastDogAdded.name, breed: lastDogAdded.breed, age: lastDogAdded.age}));
+  
+  savePromise.catch((err) => res.json({ err }));
+}*/
+
 // function to handle a request to any non-real resources (404)
 // controller functions in Express receive the full HTTP request
 // and get a pre-filled out response object to send
@@ -284,10 +368,14 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   readCat,
+  readDog,
   getName,
   setName,
+  setDogName,
   updateLast,
+  timeMachine,
   searchName,
   notFound,
 };
