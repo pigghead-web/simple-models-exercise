@@ -213,7 +213,7 @@ const setDogName = ( req, res ) => {
     return res.status(400).json({error: 'firstname, breed, and age are all required inputs'});
   };
   
-  console.dir(req.body);
+  //console.dir(req.body);
   
   const dogData = {
     name: req.body.name,
@@ -275,7 +275,7 @@ const searchName = (req, res) => {
   });
 };
 
-const searchDogName = ( req, res ) => {
+/*const searchDogName = ( req, res ) => {
   if(!req.query.name) {
     return res.json({ error: "Name is required to perform time travel" });
   }
@@ -291,7 +291,7 @@ const searchDogName = ( req, res ) => {
     
     return res.json({ name: doc.name, });
   });
-}
+}*/
 
 // function to handle a request to update the last added object
 // this PURELY exists to show you how to update a model object
@@ -342,7 +342,10 @@ const timeMachine = ( req, res ) => {
   /*lastDogAdded.age++;
   const savePromise = lastDogAdded.save();
   
-  savePromise.then(() => res.json({ name: lastDogAdded.name, breed: lastDogAdded.breed, age: lastDogAdded.age}));
+  savePromise.then(() => res.json({ name: lastDogAdded.name, 
+  breed: lastDogAdded.breed, 
+  age: lastDogAdded.age})
+  );
   
   savePromise.catch((err) => res.json({ err }));
 }*/
