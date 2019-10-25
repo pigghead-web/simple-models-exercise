@@ -15,7 +15,8 @@ const defaultData = {
 
 const defaultDogData = {
     name: 'unknown_dog_9998',
-    breed: 'no-species'
+    breed: 'no-species',
+    age: 0
 }
 
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
@@ -333,22 +334,18 @@ const timeMachine = ( req, res ) => {
     if(!doc) {
       return res.json({ error: "No dog by that name found"});
     }
+    console.log(doc);
+    doc.age++;
+    
+    const savePromise = doc.save();
+    
+    savePromise.then(() => res.json({name: doc.name, breed: doc.breed, age: doc.age}));
+    
+    savePromise.catch((err) => res.json({ err }));
       
-    return res.json({ name: doc.name});
+    //return res.json({ name: doc.name});
   });
 }
-  
-  
-  /*lastDogAdded.age++;
-  const savePromise = lastDogAdded.save();
-  
-  savePromise.then(() => res.json({ name: lastDogAdded.name, 
-  breed: lastDogAdded.breed, 
-  age: lastDogAdded.age})
-  );
-  
-  savePromise.catch((err) => res.json({ err }));
-}*/
 
 // function to handle a request to any non-real resources (404)
 // controller functions in Express receive the full HTTP request
