@@ -14,10 +14,10 @@ const defaultData = {
 };
 
 const defaultDogData = {
-    name: 'unknown_dog_9998',
-    breed: 'no-species',
-    age: 0
-}
+  name: 'unknown_dog_9998',
+  breed: 'no-species',
+  age: 0,
+};
 
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
 let lastAdded = new Cat(defaultData);
@@ -55,9 +55,9 @@ const readAllCats = (req, res, callback) => {
 };
 
 const readAllDogs = (req, res, callback) => {
-    // Return an array of matching objects
-    Dog.find(callback);
-}
+  // Return an array of matching objects
+  Dog.find(callback);
+};
 
 
 // function to find a specific cat on request.
@@ -85,16 +85,16 @@ const readCat = (req, res) => {
 };
 
 const readDog = (req, res) => {
-    const name1 = req.query.name;
-  
-    const callback = ( err, doc ) => {
-      if ( err ) {
-        return res.json({ err });  // error
-      }
-      return res.json(doc)  // successs
-    };
+  const name1 = req.query.name;
+
+  const callback = (err, doc) => {
+    if (err) {
+      return res.json({ err }); // error
+    }
+    return res.json(doc); // successs
+  };
   Dog.findByName(name1, callback);
-}
+};
 
 // function to handle requests to the page1 page
 // controller functions in Express receive the full HTTP request
@@ -131,25 +131,25 @@ const hostPage2 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const hostPage3 = (req, res) => {
-    // res.render takes a name of a page to render.
-    // These must be in the folder you specified as views in your main app.js file
-    // Additionally, you don't need .jade because you registered the file type
-    // in the app.js as jade. Calling res.render('index')
-    // actually calls index.jade. A second parameter of JSON can be passed
-    // into the jade to be used as variables with #{varName}
+  // res.render takes a name of a page to render.
+  // These must be in the folder you specified as views in your main app.js file
+  // Additionally, you don't need .jade because you registered the file type
+  // in the app.js as jade. Calling res.render('index')
+  // actually calls index.jade. A second parameter of JSON can be passed
+  // into the jade to be used as variables with #{varName}
   res.render('page3');
 };
 
-const hostPage4 = ( req, res ) => {
+const hostPage4 = (req, res) => {
   // res.render takes the name of a page to render
   // * file required in views folder
   const callback = (err, docs) => {
     if (err) {
-      return res.json({err});
+      return res.json({ err });
     }
-   return res.render('page4', { dogs: docs });
+    return res.render('page4', { dogs: docs });
   };
-  
+
   readAllDogs(req, res, callback);
 };
 
@@ -207,32 +207,32 @@ const setName = (req, res) => {
   return res;
 };
 
-const setDogName = ( req, res ) => {
+const setDogName = (req, res) => {
   // check for required fields
   if (!req.body.name || !req.body.breed || !req.body.age) {
     // send a 400 (error)
-    return res.status(400).json({error: 'firstname, breed, and age are all required inputs'});
-  };
-  
-  //console.dir(req.body);
-  
+    return res.status(400).json({ error: 'firstname, breed, and age are all required inputs' });
+  }
+
+  // console.dir(req.body);
+
   const dogData = {
     name: req.body.name,
     breed: req.body.breed,
-    age: req.body.age
+    age: req.body.age,
   };
-  
+
   const newDog = new Dog(dogData);
-  
+
   const savePromise = newDog.save();
-  
+
   savePromise.then(() => {
     lastDogAdded = newDog;
-    res.json({ name:lastDogAdded.name, breed: lastDogAdded.breed, age: lastDogAdded.age });
+    res.json({ name: lastDogAdded.name, breed: lastDogAdded.breed, age: lastDogAdded.age });
   });
-  
+
   savePromise.catch((err) => res.json({ err }));
-  
+
   return res;
 };
 
@@ -276,23 +276,23 @@ const searchName = (req, res) => {
   });
 };
 
-/*const searchDogName = ( req, res ) => {
+/* const searchDogName = ( req, res ) => {
   if(!req.query.name) {
     return res.json({ error: "Name is required to perform time travel" });
   }
-  
+
   return Dog.findByName(req.query.name, (err, doc) => {
     if (err) {
-      return res.json({ err });  
+      return res.json({ err });
     }
-    
+
     if (!doc) {
       return res.json({ error: 'No dogs found'});
     }
-    
+
     return res.json({ name: doc.name, });
   });
-}*/
+} */
 
 // function to handle a request to update the last added object
 // this PURELY exists to show you how to update a model object
@@ -321,31 +321,36 @@ const updateLast = (req, res) => {
 };
 
 // This will be a combination of updateLast && findByName from the cats
-const timeMachine = ( req, res ) => {
+const timeMachine = (req, res) => {
   if (!req.query.name) {
-    return res.json({ error: "Name is required to perform time travel"});
+    return res.json({ error: 'Name is required to perform time travel' });
   }
-    
+
   return Dog.findByName(req.query.name, (err, doc) => {
-    if (err) {
-      return res.json({ err });
-    }
-      
-    if(!doc) {
-      return res.json({ error: "No dog by that name found"});
+    if (!doc) {
+      return res.json({ error: 'No dog by that name found' });
     }
     console.log(doc);
-    doc.age++;
-    
-    const savePromise = doc.save();
-    
-    savePromise.then(() => res.json({name: doc.name, breed: doc.breed, age: doc.age}));
-    
-    savePromise.catch((err) => res.json({ err }));
-      
-    //return res.json({ name: doc.name});
+
+    lastDogAdded = doc;
+    lastDogAdded.age++;
+
+    const savePromise = lastDogAdded.save();
+
+    // trying to catch an error results in a "no-shadow" error,
+    // meaning that err is already declared above
+    /* if (err) {
+      // return res.json({ err });
+      return savePromise.catch((err) => res.json({ err }));
+    } */
+
+    return savePromise.then(() => res.json({
+      name: lastDogAdded.name,
+      breed: lastDogAdded.breed,
+      age: lastDogAdded.age,
+    }));
   });
-}
+};
 
 // function to handle a request to any non-real resources (404)
 // controller functions in Express receive the full HTTP request
