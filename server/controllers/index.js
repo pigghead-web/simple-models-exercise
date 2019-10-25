@@ -327,6 +327,10 @@ const timeMachine = (req, res) => {
   }
 
   return Dog.findByName(req.query.name, (err, doc) => {
+    if (err) {
+      return res.json({ err });
+    }
+
     if (!doc) {
       return res.json({ error: 'No dog by that name found' });
     }
@@ -339,16 +343,15 @@ const timeMachine = (req, res) => {
 
     // trying to catch an error results in a "no-shadow" error,
     // meaning that err is already declared above
-    /* if (err) {
-      // return res.json({ err });
-      return savePromise.catch((err) => res.json({ err }));
-    } */
 
-    return savePromise.then(() => res.json({
+
+    savePromise.then(() => res.json({
       name: lastDogAdded.name,
       breed: lastDogAdded.breed,
       age: lastDogAdded.age,
     }));
+
+    return savePromise.catch((err1) => res.json({ err1 }));
   });
 };
 
